@@ -28,7 +28,6 @@ public class BalanzaManager : IDisposable
         {
             new BalanzaLP7516(),
             new BalanzaMettler(),
-            new BalanzaPT(),
             new BalanzaDix()
         };
 
