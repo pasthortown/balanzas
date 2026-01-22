@@ -714,3 +714,4 @@
 /home/lsalazar/Proyectos/balanzas/solution/BalanzaService/obj/Release/net8.0/win-x64/BalanzaService.pdb
 /home/lsalazar/Proyectos/balanzas/solution/BalanzaService/obj/Release/net8.0/win-x64/BalanzaService.genruntimeconfig.cache
 /home/lsalazar/Proyectos/balanzas/solution/BalanzaService/obj/Release/net8.0/win-x64/ref/BalanzaService.dll
+/home/lsalazar/Proyectos/balanzas/solution/BalanzaService/obj/Release/net8.0/win-x64/BalanzaService.sourcelink.json
