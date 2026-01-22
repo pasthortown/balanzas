@@ -1,0 +1,5 @@
+/home/lsalazar/Proyectos/balanzas/solution/Installer/publish/appsettings.json
+/home/lsalazar/Proyectos/balanzas/solution/Installer/publish/appsettings.Production.json
+/home/lsalazar/Proyectos/balanzas/solution/Installer/publish/BalanzaService.pdb
+/home/lsalazar/Proyectos/balanzas/solution/Installer/publish/aspnetcorev2_inprocess.dll
+/home/lsalazar/Proyectos/balanzas/solution/Installer/publish/BalanzaService.exe
