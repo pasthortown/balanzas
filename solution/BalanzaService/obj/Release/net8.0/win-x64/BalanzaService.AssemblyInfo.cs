@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BalanzaService")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dbba98a6c4a392b744d5647f0fb1fc55abc81cbe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0287c9d032dfc5f17b3150604978d5aa545a87ec")]
 [assembly: System.Reflection.AssemblyProductAttribute("BalanzaService")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BalanzaService")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
