@@ -117,12 +117,35 @@ public class BalanzaWorker : BackgroundService
             _logger.LogError(ex, "No se pudo iniciar el puerto serial. El servicio continuara solo con el servidor web.");
         }
 
+        // Iniciar tarea de envío a SAP en segundo plano
+        _ = Task.Run(async () => await EnviarASapLoopAsync(stoppingToken), stoppingToken);
+
+        // Loop principal: solo lectura del puerto serial
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
                 await _balanzaManager.LeerPesoAsync();
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en ciclo de lectura");
+            }
 
+            await Task.Delay(_intervaloMs, stoppingToken);
+        }
+    }
+
+    private async Task EnviarASapLoopAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
                 if (_balanzaManager.PesoActual > 0)
                 {
                     var enviado = await _sapService.EnviarPesoAsync(_ipAddress, _balanzaManager.PesoActual, stoppingToken);
@@ -134,15 +157,14 @@ public class BalanzaWorker : BackgroundService
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
-                // Cancelación normal, no es error
                 break;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error en ciclo de lectura");
+                _logger.LogError(ex, "Error en ciclo de envio a SAP");
             }
 
-            await Task.Delay(_intervaloMs, stoppingToken);
+            await Task.Delay(1000, stoppingToken);
         }
     }
 }
