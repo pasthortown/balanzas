@@ -149,7 +149,10 @@ public class MonitorService : BackgroundService
                 var fechaStr = fechaElement.GetString();
                 if (!string.IsNullOrEmpty(fechaStr) && DateTime.TryParse(fechaStr, out var fechaValue))
                 {
-                    fecha = fechaValue;
+                    // La fecha viene en hora local del dispositivo, usar zona horaria del contenedor (TZ)
+                    var localZone = TimeZoneInfo.Local;
+                    var fechaLocal = DateTime.SpecifyKind(fechaValue, DateTimeKind.Unspecified);
+                    fecha = TimeZoneInfo.ConvertTimeToUtc(fechaLocal, localZone);
                 }
             }
         }
