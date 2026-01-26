@@ -29,6 +29,22 @@ const styles = {
     opacity: 0.9,
     fontWeight: '500',
   },
+  badgeWarning: {
+    backgroundColor: '#ffc107',
+    color: '#212529',
+    fontWeight: 'bold',
+    padding: '2px 8px',
+    borderRadius: '4px',
+    fontSize: '12px',
+  },
+  badgeDanger: {
+    backgroundColor: '#dc3545',
+    color: 'white',
+    fontWeight: 'bold',
+    padding: '2px 8px',
+    borderRadius: '4px',
+    fontSize: '12px',
+  },
   estado: {
     fontSize: '11px',
     textTransform: 'uppercase',
@@ -73,6 +89,20 @@ function BalanzaCard({ balanza, onDelete }) {
     });
   };
 
+  const getAntiguedadBadgeStyle = (dateStr) => {
+    if (!dateStr) return styles.badgeDanger;
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMinutes = (now - date) / (1000 * 60);
+
+    if (diffMinutes >= 60) {
+      return styles.badgeDanger;
+    } else if (diffMinutes >= 30) {
+      return styles.badgeWarning;
+    }
+    return null;
+  };
+
   return (
     <div style={styles.cardWrapper}>
       <div style={cardStyle}>
@@ -89,7 +119,14 @@ function BalanzaCard({ balanza, onDelete }) {
           Peso: {balanza.ultimoPeso != null ? `${balanza.ultimoPeso} kg` : 'Sin datos'}
         </div>
         <div style={styles.medicion}>
-          Última medición: {formatDate(balanza.ultimaMedicion)}
+          Última medición:{' '}
+          {getAntiguedadBadgeStyle(balanza.ultimaMedicion) ? (
+            <span style={getAntiguedadBadgeStyle(balanza.ultimaMedicion)}>
+              {formatDate(balanza.ultimaMedicion)}
+            </span>
+          ) : (
+            formatDate(balanza.ultimaMedicion)
+          )}
         </div>
         <div style={styles.estado}>
           Estado: {isOk ? '● Conectado' : '● Desconectado'}
