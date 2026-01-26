@@ -95,9 +95,12 @@ function BalanzaCard({ balanza, onDelete }) {
     const now = new Date();
     const diffMinutes = (now - date) / (1000 * 60);
 
-    if (diffMinutes >= 60) {
+    const tiempoWarning = balanza.tiempoWarning || 30;
+    const tiempoDanger = balanza.tiempoDanger || 60;
+
+    if (diffMinutes >= tiempoDanger) {
       return styles.badgeDanger;
-    } else if (diffMinutes >= 30) {
+    } else if (diffMinutes >= tiempoWarning) {
       return styles.badgeWarning;
     }
     return null;

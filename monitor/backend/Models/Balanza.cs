@@ -26,10 +26,18 @@ public class Balanza
 
     [BsonElement("ultimaMedicion")]
     public DateTime? UltimaMedicion { get; set; }
+
+    [BsonElement("tiempoWarning")]
+    public int TiempoWarning { get; set; } = 30;
+
+    [BsonElement("tiempoDanger")]
+    public int TiempoDanger { get; set; } = 60;
 }
 
 public class BalanzaCreateDto
 {
     public string Ip { get; set; } = string.Empty;
     public string Nombre { get; set; } = string.Empty;
+    public int TiempoWarning { get; set; } = 30;
+    public int TiempoDanger { get; set; } = 60;
 }

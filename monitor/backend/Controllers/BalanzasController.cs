@@ -56,7 +56,9 @@ public class BalanzasController : ControllerBase
             Ip = dto.Ip,
             Nombre = dto.Nombre,
             Estado = "error",
-            UltimaConexion = null
+            UltimaConexion = null,
+            TiempoWarning = dto.TiempoWarning,
+            TiempoDanger = dto.TiempoDanger
         };
 
         await _balanzas.InsertOneAsync(balanza);
@@ -72,7 +74,9 @@ public class BalanzasController : ControllerBase
             b => b.Id == id,
             Builders<Balanza>.Update
                 .Set(b => b.Ip, dto.Ip)
-                .Set(b => b.Nombre, dto.Nombre));
+                .Set(b => b.Nombre, dto.Nombre)
+                .Set(b => b.TiempoWarning, dto.TiempoWarning)
+                .Set(b => b.TiempoDanger, dto.TiempoDanger));
 
         if (result.MatchedCount == 0)
         {

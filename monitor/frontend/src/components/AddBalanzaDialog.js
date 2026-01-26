@@ -75,6 +75,8 @@ const styles = {
 function AddBalanzaDialog({ onClose, onSave }) {
   const [nombre, setNombre] = useState('');
   const [ip, setIp] = useState('');
+  const [tiempoWarning, setTiempoWarning] = useState(30);
+  const [tiempoDanger, setTiempoDanger] = useState(60);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -83,13 +85,28 @@ function AddBalanzaDialog({ onClose, onSave }) {
     setError('');
 
     if (!nombre.trim() || !ip.trim()) {
-      setError('Todos los campos son requeridos');
+      setError('Nombre e IP son requeridos');
+      return;
+    }
+
+    if (tiempoWarning <= 0 || tiempoDanger <= 0) {
+      setError('Los tiempos deben ser mayores a 0');
+      return;
+    }
+
+    if (tiempoWarning >= tiempoDanger) {
+      setError('Tiempo Warning debe ser menor que Tiempo Danger');
       return;
     }
 
     setLoading(true);
     try {
-      await onSave({ nombre: nombre.trim(), ip: ip.trim() });
+      await onSave({
+        nombre: nombre.trim(),
+        ip: ip.trim(),
+        tiempoWarning: parseInt(tiempoWarning),
+        tiempoDanger: parseInt(tiempoDanger)
+      });
       onClose();
     } catch (err) {
       setError(err.response?.data || 'Error al guardar la balanza');
@@ -122,6 +139,28 @@ function AddBalanzaDialog({ onClose, onSave }) {
               value={ip}
               onChange={(e) => setIp(e.target.value)}
               placeholder="Ej: 172.28.3.250"
+            />
+          </div>
+          <div style={styles.field}>
+            <label style={styles.label}>Tiempo Warning (minutos)</label>
+            <input
+              style={styles.input}
+              type="number"
+              value={tiempoWarning}
+              onChange={(e) => setTiempoWarning(e.target.value)}
+              min="1"
+              placeholder="30"
+            />
+          </div>
+          <div style={styles.field}>
+            <label style={styles.label}>Tiempo Danger (minutos)</label>
+            <input
+              style={styles.input}
+              type="number"
+              value={tiempoDanger}
+              onChange={(e) => setTiempoDanger(e.target.value)}
+              min="1"
+              placeholder="60"
             />
           </div>
           {error && <div style={styles.error}>{error}</div>}
