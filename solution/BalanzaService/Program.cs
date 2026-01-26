@@ -110,7 +110,7 @@ public class BalanzaWorker : BackgroundService
 
         try
         {
-            _balanzaManager.Iniciar();
+            await _balanzaManager.IniciarAsync();
         }
         catch (Exception ex)
         {
@@ -121,16 +121,21 @@ public class BalanzaWorker : BackgroundService
         {
             try
             {
-                _balanzaManager.LeerPeso();
+                await _balanzaManager.LeerPesoAsync();
 
                 if (_balanzaManager.PesoActual > 0)
                 {
-                    var enviado = await _sapService.EnviarPesoAsync(_ipAddress, _balanzaManager.PesoActual);
+                    var enviado = await _sapService.EnviarPesoAsync(_ipAddress, _balanzaManager.PesoActual, stoppingToken);
                     if (enviado)
                     {
                         _balanzaManager.ResetearPesoActual();
                     }
                 }
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                // Cancelación normal, no es error
+                break;
             }
             catch (Exception ex)
             {

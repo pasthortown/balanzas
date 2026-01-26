@@ -15,7 +15,10 @@ public class SapService
     public SapService(IConfiguration config, ILogger<SapService> logger)
     {
         _logger = logger;
-        _httpClient = new HttpClient();
+        _httpClient = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(30)
+        };
 
         _wsUrl = config["Sap:Url"] ?? throw new ArgumentException("Sap:Url no configurada");
         _username = config["Sap:Username"] ?? throw new ArgumentException("Sap:Username no configurado");
@@ -26,7 +29,7 @@ public class SapService
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authBase64);
     }
 
-    public async Task<bool> EnviarPesoAsync(string ipAddress, double peso)
+    public async Task<bool> EnviarPesoAsync(string ipAddress, double peso, CancellationToken cancellationToken = default)
     {
         if (peso <= 0)
         {
@@ -46,8 +49,8 @@ public class SapService
 
             _logger.LogInformation("Enviando a SAP: {Payload}", json);
 
-            var response = await _httpClient.PostAsync(_wsUrl, content);
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var response = await _httpClient.PostAsync(_wsUrl, content, cancellationToken);
+            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
             _logger.LogInformation("Respuesta SAP - Codigo: {StatusCode}, Body: {Body}",
                 (int)response.StatusCode, responseBody);

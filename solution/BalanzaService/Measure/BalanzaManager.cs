@@ -36,7 +36,7 @@ public class BalanzaManager : IDisposable
         _logger.LogInformation("Puertos COM disponibles: {Puertos}", string.Join(", ", puertosDisponibles));
     }
 
-    public void Iniciar()
+    public async Task IniciarAsync()
     {
         try
         {
@@ -57,7 +57,7 @@ public class BalanzaManager : IDisposable
             // Limpiar buffers
             _serialPort.DiscardInBuffer();
             _serialPort.DiscardOutBuffer();
-            Thread.Sleep(500); // Dar tiempo al puerto para estabilizarse
+            await Task.Delay(500); // Dar tiempo al puerto para estabilizarse
         }
         catch (Exception ex)
         {
@@ -67,15 +67,15 @@ public class BalanzaManager : IDisposable
         }
     }
 
-    private void ReabrirPuerto()
+    private async Task ReabrirPuertoAsync()
     {
         try
         {
             _logger.LogWarning("Intentando reabrir puerto serial...");
             _serialPort?.Close();
             _serialPort?.Dispose();
-            Thread.Sleep(1000);
-            Iniciar();
+            await Task.Delay(1000);
+            await IniciarAsync();
         }
         catch (Exception ex)
         {
@@ -84,14 +84,14 @@ public class BalanzaManager : IDisposable
         }
     }
 
-    public void LeerPeso()
+    public async Task LeerPesoAsync()
     {
         try
         {
             if (_serialPort == null || !_puertoAbierto || !_serialPort.IsOpen)
             {
                 _logger.LogWarning("Puerto serial no esta abierto, intentando reconectar...");
-                ReabrirPuerto();
+                await ReabrirPuertoAsync();
                 return;
             }
 
