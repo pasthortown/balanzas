@@ -20,6 +20,12 @@ public class Balanza
 
     [BsonElement("estado")]
     public string Estado { get; set; } = "error";
+
+    [BsonElement("ultimoPeso")]
+    public double? UltimoPeso { get; set; }
+
+    [BsonElement("ultimaMedicion")]
+    public DateTime? UltimaMedicion { get; set; }
 }
 
 public class BalanzaCreateDto

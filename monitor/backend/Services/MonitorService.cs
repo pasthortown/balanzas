@@ -1,6 +1,6 @@
 using MongoDB.Driver;
 using BalanzasMonitor.Models;
-using System.Collections.Concurrent;
+using System.Text.Json;
 
 namespace BalanzasMonitor.Services;
 
@@ -84,7 +84,25 @@ public class MonitorService : BackgroundService
             if (response.IsSuccessStatusCode)
             {
                 update = update.Set(b => b.UltimaConexion, DateTime.UtcNow);
-                _logger.LogDebug("Balanza {Nombre} ({Ip}): OK", balanza.Nombre, balanza.Ip);
+
+                // Leer el peso del response
+                var content = await response.Content.ReadAsStringAsync(ct);
+                var pesoActual = ParsearPeso(content);
+
+                if (pesoActual.HasValue)
+                {
+                    update = update.Set(b => b.UltimoPeso, pesoActual.Value);
+
+                    // Solo actualizar la fecha de medición si el peso cambió
+                    if (!balanza.UltimoPeso.HasValue || Math.Abs(balanza.UltimoPeso.Value - pesoActual.Value) > 0.001)
+                    {
+                        update = update.Set(b => b.UltimaMedicion, DateTime.UtcNow);
+                        _logger.LogDebug("Balanza {Nombre} ({Ip}): Peso cambió de {PesoAnterior} a {PesoActual}",
+                            balanza.Nombre, balanza.Ip, balanza.UltimoPeso, pesoActual.Value);
+                    }
+                }
+
+                _logger.LogDebug("Balanza {Nombre} ({Ip}): OK - Peso: {Peso}", balanza.Nombre, balanza.Ip, pesoActual);
             }
             else
             {
@@ -107,5 +125,27 @@ public class MonitorService : BackgroundService
                 Builders<Balanza>.Update.Set(b => b.Estado, "error"),
                 cancellationToken: ct);
         }
+    }
+
+    private double? ParsearPeso(string content)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(content);
+            if (doc.RootElement.TryGetProperty("peso", out var pesoElement))
+            {
+                var pesoStr = pesoElement.GetString();
+                if (double.TryParse(pesoStr, System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out var peso))
+                {
+                    return peso;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Error parseando peso: {Message}", ex.Message);
+        }
+        return null;
     }
 }

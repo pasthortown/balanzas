@@ -27,6 +27,12 @@ const styles = {
   conexion: {
     fontSize: '12px',
     opacity: 0.8,
+    marginBottom: '4px',
+  },
+  medicion: {
+    fontSize: '12px',
+    opacity: 0.9,
+    fontWeight: '500',
   },
   estado: {
     fontSize: '11px',
@@ -86,6 +92,9 @@ function BalanzaCard({ balanza, onDelete }) {
         <div style={styles.ip}>IP: {balanza.ip}</div>
         <div style={styles.conexion}>
           Última conexión OK: {formatDate(balanza.ultimaConexion)}
+        </div>
+        <div style={styles.medicion}>
+          Última medición: {balanza.ultimoPeso != null ? `${balanza.ultimoPeso} kg` : 'Sin datos'} - {formatDate(balanza.ultimaMedicion)}
         </div>
         <div style={styles.estado}>
           Estado: {isOk ? '● Conectado' : '● Desconectado'}
