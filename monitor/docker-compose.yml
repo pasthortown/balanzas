@@ -3,8 +3,11 @@ services:
     image: mongo:7
     container_name: balanzas_mongodb
     restart: unless-stopped
+    environment:
+      - TZ=America/Santiago
     volumes:
       - mongodb_data:/data/db
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - "27017:27017"
     networks:
@@ -20,6 +23,7 @@ services:
     environment:
       - MONGODB_CONNECTION=mongodb://localhost:27017
       - ASPNETCORE_ENVIRONMENT=Production
+      - TZ=America/Santiago
     depends_on:
       - mongodb
 
@@ -28,6 +32,8 @@ services:
       context: ./frontend
     container_name: balanzas_frontend
     restart: unless-stopped
+    environment:
+      - TZ=America/Santiago
     depends_on:
       - backend
     ports:
