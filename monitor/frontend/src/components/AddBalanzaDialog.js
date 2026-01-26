@@ -72,11 +72,12 @@ const styles = {
   },
 };
 
-function AddBalanzaDialog({ onClose, onSave }) {
-  const [nombre, setNombre] = useState('');
-  const [ip, setIp] = useState('');
-  const [tiempoWarning, setTiempoWarning] = useState(30);
-  const [tiempoDanger, setTiempoDanger] = useState(60);
+function AddBalanzaDialog({ onClose, onSave, balanza }) {
+  const isEditing = !!balanza;
+  const [nombre, setNombre] = useState(balanza?.nombre || '');
+  const [ip, setIp] = useState(balanza?.ip || '');
+  const [tiempoWarning, setTiempoWarning] = useState(balanza?.tiempoWarning || 30);
+  const [tiempoDanger, setTiempoDanger] = useState(balanza?.tiempoDanger || 60);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -101,12 +102,17 @@ function AddBalanzaDialog({ onClose, onSave }) {
 
     setLoading(true);
     try {
-      await onSave({
+      const data = {
         nombre: nombre.trim(),
         ip: ip.trim(),
         tiempoWarning: parseInt(tiempoWarning),
         tiempoDanger: parseInt(tiempoDanger)
-      });
+      };
+      if (isEditing) {
+        await onSave(balanza.id, data);
+      } else {
+        await onSave(data);
+      }
       onClose();
     } catch (err) {
       setError(err.response?.data || 'Error al guardar la balanza');
@@ -118,7 +124,7 @@ function AddBalanzaDialog({ onClose, onSave }) {
   return (
     <div style={styles.overlay} onClick={onClose}>
       <div style={styles.dialog} onClick={(e) => e.stopPropagation()}>
-        <h2 style={styles.title}>Agregar Balanza</h2>
+        <h2 style={styles.title}>{isEditing ? 'Editar Balanza' : 'Agregar Balanza'}</h2>
         <form onSubmit={handleSubmit}>
           <div style={styles.field}>
             <label style={styles.label}>Nombre</label>

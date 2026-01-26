@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getBalanzas, createBalanza, deleteBalanza } from './services/api';
+import { getBalanzas, createBalanza, updateBalanza, deleteBalanza } from './services/api';
 import AddBalanzaDialog from './components/AddBalanzaDialog';
 import BalanzaCard from './components/BalanzaCard';
 
@@ -59,6 +59,7 @@ const styles = {
 function App() {
   const [balanzas, setBalanzas] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
+  const [editingBalanza, setEditingBalanza] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchBalanzas = async () => {
@@ -81,6 +82,21 @@ function App() {
   const handleSave = async (data) => {
     await createBalanza(data);
     await fetchBalanzas();
+  };
+
+  const handleUpdate = async (id, data) => {
+    await updateBalanza(id, data);
+    await fetchBalanzas();
+  };
+
+  const handleEdit = (balanza) => {
+    setEditingBalanza(balanza);
+    setShowDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setShowDialog(false);
+    setEditingBalanza(null);
   };
 
   const handleDelete = async (id) => {
@@ -129,6 +145,7 @@ function App() {
                 key={balanza.id}
                 balanza={balanza}
                 onDelete={handleDelete}
+                onEdit={handleEdit}
               />
             ))}
           </div>
@@ -137,8 +154,9 @@ function App() {
 
       {showDialog && (
         <AddBalanzaDialog
-          onClose={() => setShowDialog(false)}
-          onSave={handleSave}
+          onClose={handleCloseDialog}
+          onSave={editingBalanza ? handleUpdate : handleSave}
+          balanza={editingBalanza}
         />
       )}
     </div>

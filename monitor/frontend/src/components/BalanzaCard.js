@@ -51,10 +51,7 @@ const styles = {
     marginTop: '10px',
     fontWeight: '600',
   },
-  deleteBtn: {
-    position: 'absolute',
-    top: '8px',
-    right: '8px',
+  actionBtn: {
     background: 'rgba(255,255,255,0.3)',
     border: 'none',
     borderRadius: '50%',
@@ -64,12 +61,19 @@ const styles = {
     color: 'white',
     fontSize: '14px',
   },
+  buttonsContainer: {
+    position: 'absolute',
+    top: '8px',
+    right: '8px',
+    display: 'flex',
+    gap: '6px',
+  },
   cardWrapper: {
     position: 'relative',
   },
 };
 
-function BalanzaCard({ balanza, onDelete }) {
+function BalanzaCard({ balanza, onDelete, onEdit }) {
   const isOk = balanza.estado === 'ok';
   const cardStyle = {
     ...styles.card,
@@ -109,13 +113,22 @@ function BalanzaCard({ balanza, onDelete }) {
   return (
     <div style={styles.cardWrapper}>
       <div style={cardStyle}>
-        <button
-          style={styles.deleteBtn}
-          onClick={() => onDelete(balanza.id)}
-          title="Eliminar"
-        >
-          ×
-        </button>
+        <div style={styles.buttonsContainer}>
+          <button
+            style={styles.actionBtn}
+            onClick={() => onEdit(balanza)}
+            title="Editar"
+          >
+            ✎
+          </button>
+          <button
+            style={styles.actionBtn}
+            onClick={() => onDelete(balanza.id)}
+            title="Eliminar"
+          >
+            ×
+          </button>
+        </div>
         <div style={styles.nombre}>{balanza.nombre}</div>
         <div style={styles.ip}>IP: {balanza.ip}</div>
         <div style={styles.medicion}>
