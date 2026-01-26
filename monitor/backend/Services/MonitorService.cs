@@ -72,7 +72,7 @@ public class MonitorService : BackgroundService
     private async Task VerificarBalanzaAsync(Balanza balanza, CancellationToken ct)
     {
         var client = _httpClientFactory.CreateClient("BalanzaClient");
-        var url = $"http://{balanza.Ip}/balanza";
+        var url = $"http://{balanza.Ip}/status";
 
         try
         {
@@ -85,24 +85,22 @@ public class MonitorService : BackgroundService
             {
                 update = update.Set(b => b.UltimaConexion, DateTime.UtcNow);
 
-                // Leer el peso del response
+                // Leer el peso y fecha del response
                 var content = await response.Content.ReadAsStringAsync(ct);
-                var pesoActual = ParsearPeso(content);
+                var (peso, fecha) = ParsearStatus(content);
 
-                if (pesoActual.HasValue)
+                if (peso.HasValue)
                 {
-                    update = update.Set(b => b.UltimoPeso, pesoActual.Value);
-
-                    // Solo actualizar la fecha de medición si el peso cambió
-                    if (!balanza.UltimoPeso.HasValue || Math.Abs(balanza.UltimoPeso.Value - pesoActual.Value) > 0.001)
-                    {
-                        update = update.Set(b => b.UltimaMedicion, DateTime.UtcNow);
-                        _logger.LogDebug("Balanza {Nombre} ({Ip}): Peso cambió de {PesoAnterior} a {PesoActual}",
-                            balanza.Nombre, balanza.Ip, balanza.UltimoPeso, pesoActual.Value);
-                    }
+                    update = update.Set(b => b.UltimoPeso, peso.Value);
                 }
 
-                _logger.LogDebug("Balanza {Nombre} ({Ip}): OK - Peso: {Peso}", balanza.Nombre, balanza.Ip, pesoActual);
+                if (fecha.HasValue)
+                {
+                    update = update.Set(b => b.UltimaMedicion, fecha.Value);
+                }
+
+                _logger.LogDebug("Balanza {Nombre} ({Ip}): OK - Peso: {Peso}, Fecha: {Fecha}", 
+                    balanza.Nombre, balanza.Ip, peso, fecha);
             }
             else
             {
@@ -127,25 +125,39 @@ public class MonitorService : BackgroundService
         }
     }
 
-    private double? ParsearPeso(string content)
+    private (double?, DateTime?) ParsearStatus(string content)
     {
+        double? peso = null;
+        DateTime? fecha = null;
+
         try
         {
             using var doc = JsonDocument.Parse(content);
+            
             if (doc.RootElement.TryGetProperty("peso", out var pesoElement))
             {
                 var pesoStr = pesoElement.GetString();
                 if (double.TryParse(pesoStr, System.Globalization.NumberStyles.Any,
-                    System.Globalization.CultureInfo.InvariantCulture, out var peso))
+                    System.Globalization.CultureInfo.InvariantCulture, out var pesoValue))
                 {
-                    return peso;
+                    peso = pesoValue;
+                }
+            }
+
+            if (doc.RootElement.TryGetProperty("fecha", out var fechaElement))
+            {
+                var fechaStr = fechaElement.GetString();
+                if (!string.IsNullOrEmpty(fechaStr) && DateTime.TryParse(fechaStr, out var fechaValue))
+                {
+                    fecha = fechaValue;
                 }
             }
         }
         catch (Exception ex)
         {
-            _logger.LogWarning("Error parseando peso: {Message}", ex.Message);
+            _logger.LogWarning("Error parseando status: {Message}", ex.Message);
         }
-        return null;
+
+        return (peso, fecha);
     }
 }
