@@ -136,7 +136,7 @@ public class MonitorService : BackgroundService
             
             if (doc.RootElement.TryGetProperty("peso", out var pesoElement))
             {
-                var pesoStr = pesoElement.GetString();
+                var pesoStr = pesoElement.GetString()?.Replace(',', '.');
                 if (double.TryParse(pesoStr, System.Globalization.NumberStyles.Any,
                     System.Globalization.CultureInfo.InvariantCulture, out var pesoValue))
                 {
